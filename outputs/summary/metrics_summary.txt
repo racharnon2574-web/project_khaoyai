@@ -1,0 +1,8 @@
+Model Performance Summary
+=========================
+
+  Model  RMSE  MAE  mAPE (%)
+   Holt  7514 5444     87.58
+ SARIMA  3881 2142     31.06
+Prophet  3162 1792     29.49
+   LSTM  3173 2206     48.01

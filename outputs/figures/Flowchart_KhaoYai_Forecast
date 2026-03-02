@@ -1,0 +1,42 @@
+// Flowchart - Khao Yai Tourist Forecast
+digraph {
+	fontname=Helvetica fontsize=12 nodesep=0.6 rankdir=TB ranksep=0.8
+	A [label="Start
+Run compare_models.py" shape=oval]
+	B [label="Load Data
+Read 2021–2024.xlsx" shape=box]
+	C [label="Data Preparation
+Convert Date
+Sort by Time
+Select TOTAL" shape=box]
+	D [label="Split Data
+Train 80% / Test 20%" shape=diamond]
+	E1 [label="Run SARIMA Model" shape=box]
+	E2 [label="Run Holt Model" shape=box]
+	E3 [label="Run Prophet Model" shape=box]
+	E4 [label="Run LSTM Model" shape=box]
+	F [label="Generate Predictions" shape=box]
+	G [label="Evaluate Models
+RMSE, MAE, mAPE" shape=box]
+	H [label="Save Results
+CSV / TXT" shape=box]
+	I [label="Visualize Results
+Forecast Graphs" shape=box]
+	J [label=End shape=oval]
+	A -> B
+	B -> C
+	C -> D
+	D -> E1
+	D -> E2
+	D -> E3
+	D -> E4
+	E1 -> F
+	E2 -> F
+	E3 -> F
+	E4 -> F
+	F -> G
+	G -> H
+	G -> I
+	H -> J
+	I -> J
+}
