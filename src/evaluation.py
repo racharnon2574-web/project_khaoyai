@@ -6,11 +6,12 @@ def evaluate_forecast(actual, forecast):
     forecast = np.array(forecast)
 
     mae = np.mean(np.abs(actual - forecast))
+
     rmse = np.sqrt(np.mean((actual - forecast) ** 2))
 
     smape = np.mean(
-        2 * np.abs(forecast - actual)
-        / (np.abs(actual) + np.abs(forecast))
+        2 * np.abs(forecast - actual) /
+        (np.abs(actual) + np.abs(forecast) + 1e-8)
     ) * 100
 
     return mae, rmse, smape

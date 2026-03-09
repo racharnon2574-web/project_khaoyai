@@ -1,6 +1,6 @@
 import tkinter as tk
 import numpy as np
-from xgb_model_gui import forecast_from_gui
+from xgb_model import forecast_from_gui
 from preprocessing import load_and_prepare_data
 from tkinter import ttk
 from tkcalendar import Calendar

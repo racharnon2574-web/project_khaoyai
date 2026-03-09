@@ -9,6 +9,27 @@ from lstm_model import run_lstm
 from evaluation import evaluate_forecast
 
 
+def check_forecast_by_date(date, dates, actual, forecast):
+
+    date = pd.to_datetime(date)
+
+    if date not in dates:
+        print("Date not found in test data")
+        return
+
+    idx = list(dates).index(date)
+
+    a = actual[idx]
+    f = forecast[idx]
+
+    error = a - f
+    error_pct = (error / a) * 100
+
+    print(f"\n===== {date.date()} =====")
+    print(f"Actual   : {int(a)}")
+    print(f"Forecast : {int(f)}")
+    print(f"Error    : {int(error)}")
+    print(f"Error %  : {error_pct:.2f}%")
 
 def main():
 
@@ -23,7 +44,7 @@ def main():
     print("Train length:", len(train))
     print("Test length :", len(test))
 
-    # 🔥 แปลง test กลับ scale จริง
+    # แปลง test กลับ scale จริง
     test_actual = np.expm1(target_test)
 
     results = []
@@ -74,6 +95,28 @@ def main():
     print("=" * 50)
     print(results_df.to_string(index=False))
 
+    best_model = results_df.iloc[0]["Model"]
+
+    if best_model == "XGBoost":
+        best_forecast = xgb_forecast
+
+    elif best_model == "SARIMA":
+        best_forecast = sarima_forecast
+
+    elif best_model == "Prophet":
+        best_forecast = prophet_forecast
+
+    elif best_model == "LSTM":
+        best_forecast = lstm_forecast
+
+    check_date = "2025-01-1"
+
+    check_forecast_by_date(
+        check_date,
+        target_test.index,
+        test_actual,
+        best_forecast
+    )
 
 if __name__ == "__main__":
     main()

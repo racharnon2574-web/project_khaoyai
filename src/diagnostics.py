@@ -21,3 +21,4 @@ def plot_acf_pacf(ts):
     plot_pacf(ts, lags=30, method="ywm")
     plt.title("PACF Plot")
     plt.show()
+    

@@ -4,35 +4,65 @@ import numpy as np
 from xgboost import XGBRegressor
 
 
+# ==============================
+# FEATURE ENGINEERING
+# ==============================
+
 def create_features(ts):
 
-    df = pd.DataFrame(ts)
-    df.columns = ["y"]
+    df = pd.DataFrame(ts).copy()
 
+    # ถ้ามีหลาย column ให้ใช้เฉพาะ target y
+    if df.shape[1] > 1:
+        df = df[["y"]]
+
+    df.index = pd.to_datetime(df.index)
+
+    # Lag features
     lags = [1,2,3,4,6,8,12,26,52]
+
     for lag in lags:
         df[f"lag{lag}"] = df["y"].shift(lag)
 
-    windows = [4,8,12,26]
+    # Rolling mean
+    df["roll7_mean"] = df["y"].rolling(7).mean()
+    df["roll30_mean"] = df["y"].rolling(30).mean()
+
+    # Rolling statistics
+    windows = [4, 8, 12, 26]
+
     for w in windows:
         df[f"roll{w}_mean"] = df["y"].rolling(w).mean()
         df[f"roll{w}_std"] = df["y"].rolling(w).std()
 
-    df["month_sin"] = np.sin(2*np.pi*df.index.month/12)
-    df["month_cos"] = np.cos(2*np.pi*df.index.month/12)
+    # Monthly seasonality
+    df["month_sin"] = np.sin(2 * np.pi * df.index.month / 12)
+    df["month_cos"] = np.cos(2 * np.pi * df.index.month / 12)
+
+    # Weekly pattern
     df["day_of_week"] = df.index.dayofweek
     df["is_weekend"] = (df.index.dayofweek >= 5).astype(int)
-    df["day_sin"] = np.sin(2*np.pi*df.index.dayofweek/7)
-    df["day_cos"] = np.cos(2*np.pi*df.index.dayofweek/7)
+
+    # Weekly seasonality
+    df["day_sin"] = np.sin(2 * np.pi * df.index.dayofweek / 7)
+    df["day_cos"] = np.cos(2 * np.pi * df.index.dayofweek / 7)
+
+    # Trend
+    df["trend"] = range(len(df))
 
     df = df.dropna()
 
     return df
 
 
+# ==============================
+# TRAIN + TEST FORECAST
+# ==============================
+
 def run_xgboost(train_ts, test_ts):
 
     full_ts = pd.concat([train_ts, test_ts])
+
     df = create_features(full_ts)
 
     split_date = train_ts.index[-1]
@@ -46,20 +76,28 @@ def run_xgboost(train_ts, test_ts):
     X_test = test.drop("y", axis=1)
 
     model = XGBRegressor(
-        n_estimators=800,
-        learning_rate=0.03,
-        max_depth=5,
+        n_estimators=500,
+        learning_rate=0.05,
+        max_depth=4,
         random_state=42
     )
 
     model.fit(X_train, y_train)
 
+    # save model for GUI
+    joblib.dump(model, "xgb_model.pkl")
+
     forecast = model.predict(X_test)
 
     return forecast
 
+
+# ==============================
+# FORECAST FUTURE (CLI)
+# ==============================
+
 def forecast_future(last_known_ts, start_date, days, model_path="xgb_model.pkl"):
-    
+
     model = joblib.load(model_path)
 
     history = last_known_ts.copy()
@@ -86,17 +124,15 @@ def forecast_future(last_known_ts, start_date, days, model_path="xgb_model.pkl")
 
     return forecast_dates, predictions
 
-# =============================
-# GUI FORECAST FUNCTION (SAFE)
-# =============================
+
+# ==============================
+# GUI FORECAST FUNCTION
+# ==============================
 
 def forecast_from_gui(last_known_ts, start_date, days, model_path="xgb_model.pkl"):
 
-    import joblib
-
     model = joblib.load(model_path)
 
-    # 🔥 ตัดข้อมูลให้เหลือแค่ก่อนวันเลือก
     history = last_known_ts[last_known_ts.index < pd.to_datetime(start_date)].copy()
     history.index = pd.to_datetime(history.index)
 
