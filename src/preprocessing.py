@@ -26,7 +26,7 @@ def load_and_prepare_data(filepath):
     )
 
     # =============================
-    # 🎆 New Year (แบบมีระดับความแรง)
+    #  New Year (แบบมีระดับความแรง)
     # =============================
     df["newyear_strength"] = 0.0
 
@@ -48,18 +48,12 @@ def load_and_prepare_data(filepath):
             df.loc[date, "newyear_strength"] = 0.4
 
     # =============================
-    # 💦 Songkran
+    #  Songkran
     # =============================
     df["is_songkran"] = df.index.to_series().apply(
         lambda x: 1 if x.month == 4 and x.day in [13, 14, 15] else 0
     )
 
-    # =============================
-    # 🪔 Loy Krathong
-    # =============================
-    df["is_loykrathong"] = df.index.to_series().apply(
-        lambda x: 1 if x.month == 11 and 10 <= x.day <= 20 else 0
-    )
 
     # =============================
     # Before / After Holiday Effect
@@ -84,7 +78,6 @@ def load_and_prepare_data(filepath):
             "is_holiday",
             "newyear_strength",
             "is_songkran",
-            "is_loykrathong",
             "before_holiday",
             "after_holiday",
             "long_weekend"

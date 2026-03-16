@@ -97,6 +97,7 @@ class ForecastApp:
             command=self.run_forecast
         ).pack(pady=35)
 
+
         # หมายเหตุระบบ
 
         separator = tk.Frame(self.card, bg="#dddddd", height=1, width=600)
@@ -250,12 +251,12 @@ class ForecastApp:
 
             forecasts = [int(np.expm1(v)) for v in forecasts]
 
-            smape = 14.41
+            smape = 11.68
             accuracy = 100 - smape
 
             self.result_text.insert(
                 tk.END,
-                f"📊 รายงานผลการพยากรณ์จำนวนนักท่องเที่ยว\n"
+                f"รายงานผลการพยากรณ์จำนวนนักท่องเที่ยว\n"
                 f"ระดับความแม่นยำของแบบจำลอง: {accuracy:.2f}%\n"
                 f"วันที่อ้างอิงการพยากรณ์: {self.selected_date}\n\n"
             )
